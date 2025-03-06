@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1741227642 source:c:\programacao\curso_c_udemy\bank_atm\main.c
+	<stdio.h>
+	<stdlib.h>
+
