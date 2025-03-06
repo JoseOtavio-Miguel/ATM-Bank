@@ -1,5 +1,14 @@
+<<<<<<< HEAD
+# depslib dependency file v1.0
+1741282856 source:c:\programacao\curso_c_udemy\bank_atm\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
+=======
 # depslib dependency file v1.0
 1741227642 source:c:\programacao\curso_c_udemy\bank_atm\main.c
 	<stdio.h>
 	<stdlib.h>
 
+>>>>>>> 6bd4ff920e10fe63895c87b0ca55cef177b5b792
