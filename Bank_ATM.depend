@@ -6,9 +6,17 @@
 	<string.h>
 
 =======
+<<<<<<< HEAD
 # depslib dependency file v1.0
 1741227642 source:c:\programacao\curso_c_udemy\bank_atm\main.c
 	<stdio.h>
 	<stdlib.h>
 
+=======
+# depslib dependency file v1.0
+1741227642 source:c:\programacao\curso_c_udemy\bank_atm\main.c
+	<stdio.h>
+	<stdlib.h>
+
+>>>>>>> 9c8586aaa6cc348db18a6e015e3b73cc0f378e1a
 >>>>>>> 6bd4ff920e10fe63895c87b0ca55cef177b5b792
