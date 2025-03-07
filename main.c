@@ -15,9 +15,17 @@ typedef struct
 //Define a estrutura do Historico da conta
 typedef struct
 {
-    char tipoTransacao;
+    char tipoTransacao[20];
     float valor;
     char data[11];
+
+} Transacao;
+
+typedef struct
+{
+    Transacao * historico;
+    int tamanho;
+    int capacidade;
 
 } Historico;
 
@@ -31,7 +39,6 @@ typedef struct
     float saldo;
     int quantidadeTransacoes;
 
-
 } Conta;
 
 typedef struct
@@ -39,6 +46,7 @@ typedef struct
     Conta *contas;
     int tamanho;
     int capacidade;
+
 } ListaContas;
 
 
@@ -49,9 +57,8 @@ void AdicionarConta(ListaContas *contas, Conta *conta);
 void ExibirContas(ListaContas *listaContas);
 void ExibirInformacoes(Conta *contaLogada);
 void Deslogar(Conta *contaLogada);
-//void Extrato(Conta conta);
-//void Saque(Conta *conta);
-//void Deposito(Conta *conta);
+void Saque(Conta *contaLogada);
+void Deposito(Conta *contaLogada);
 
 Conta CriarConta(ListaContas *listaContas);
 Conta *LogarConta(ListaContas *listaContas);
@@ -71,7 +78,7 @@ int main(){
     inicializarLista(&listaContas, 2);
 
 
-    while (opcao > 0 && opcao < 7){
+    while (opcao > 0 && opcao < 8){
         printf("\nEscolha uma Opcao : ( 0 Para Sair ) ");
         scanf("%d", &opcao);
 
@@ -82,52 +89,52 @@ int main(){
             case 1:
                 novaConta = CriarConta(&listaContas);
                 AdicionarConta(&listaContas, &novaConta);
+                //Define a variavel que confirma ao menos uma conta cadastrada
                 contaCriada = 1;
                 break;
 
-            case 2:
-                if(contaCriada == 1){
+            if (contaCriada == 1)
+            {
+                case 2:
                     // Faz a chamada da funcao LogarConta para permitir o login ativo.
                     contaLogada = LogarConta(&listaContas);
                     logStatus = 1; // Altera o Status para 1, indicando um login ativo.
-                }
-                else if (logStatus == 1){
-                    // Permite ao usuario deslogar da conta.
-                    //Deslogar(contaLogada);
-                }
-                else{
-                    printf("Nenhuma conta Cadastrada !");
-                }
-                break;
+                    break;
 
-            case 3:
-                if (contaCriada == 1){
+                case 3:
                     ExibirContas(&listaContas); // Exibe as contas criadas.
-                }
-                else{
-                    printf("Nenhuma Conta Cadastrada !");
-                }
-                break;
+                    break;
+            }
+            else{
+                printf("\n Nenhuma Conta Cadastrada !");
+            }
 
-            case 4:
-                if (contaLogada != NULL){
+            if (logStatus == 1)
+            {
+                case 4:
                     ExibirInformacoes(contaLogada); // Exibe as informacoes da conta Logada.
-                }
-                else{
-                    printf(" Nao ha login Ativo ! \n");
-                }
-                break;
+                    break;
+
+                case 6:
+                    Saque(contaLogada);
+                    break;
+
+                case 7:
+                    Deposito(contaLogada);
+                    break;
+            }
+            else{
+                printf("\n Nao ha Login Ativo !");
+            }
 
             default:
-                // Imprime opcao nao encontrada caso a entrada nao esteja listada.
-                printf(" Opcao nao Encontrada");
+                printf("\n Opcao nao Encontrada ! \n");
                 break;
         }
 
-
         while (getchar() != '\n'); // Limpa o buffer de entrada, para evitar erros de leitura.
         //Limpa a tela antes de exibir o Menu novamente.
-        sleep(3); // O sistema espera 3 segundos antes de limpar a tela.
+        sleep(1); // O sistema espera 3 segundos antes de limpar a tela.
         system("cls");
         Menu();
     }
@@ -303,3 +310,64 @@ void ExibirInformacoes(Conta *contaLogada){
 
     sleep(1);
 }
+<<<<<<< HEAD
+
+
+
+void Deposito(Conta *contaLogada){
+    float valor;
+    char confirmar;
+    printf("\n      DEPOSITO     ");
+    while (getchar() != '\n');
+    printf("\nInforme o valor do Deposito : ");
+    scanf("%f", &valor);
+
+    if (valor > 0){
+        printf("\n Valor : %.2f", valor);
+        while (getchar() != '\n');
+        printf("\n Confirmar Deposito  (s/n)?");
+        scanf("%c", &confirmar);
+
+        if(confirmar == 's'){
+            contaLogada->saldo += valor;
+            printf("\n Saldo Realizado com Sucesso !");
+            printf("\n Saldo : %.2f ", contaLogada->saldo);
+        }
+        else{
+            printf("\n Operacao Cancelada !");
+        }
+    }
+
+}
+
+
+void Saque(Conta *contaLogada){
+    float valor;
+    char confirmar;
+    printf("\n      SAQUE     ");
+    while (getchar() != '\n');
+    printf("\nInforme o valor do Saque : ");
+    scanf("%f", &valor);
+
+    if (valor > 0 && contaLogada->saldo >= valor){
+        printf("\n Valor : %.2f", valor);
+        while (getchar() != '\n');
+        printf("\n Confirmar Saque  (s/n)?");
+        scanf("%c", &confirmar);
+
+        if(confirmar == 's'){
+            contaLogada->saldo -= valor;
+            printf("\n Saldo Realizado com Sucesso !");
+            printf("\n Saldo : %.2f ", contaLogada->saldo);
+        }
+        else{
+            printf("\n Operacao Cancelada !");
+        }
+    }
+    else{
+        printf("\n Saldo Insuficiente ! \n");
+    }
+
+}
+=======
+>>>>>>> 4a768bf3eaf4e142232116d9a27023e3fd00a3e4
