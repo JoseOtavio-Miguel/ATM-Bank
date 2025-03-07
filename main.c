@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 //Define a estrutura para a definicao de um cadastro de Pessoa Física
 typedef struct
@@ -17,13 +18,13 @@ typedef struct
 {
     char tipoTransacao[20];
     float valor;
-    char data[11];
+    char data[30];
 
 } Transacao;
 
 typedef struct
 {
-    Transacao * historico;
+    Transacao *transacoes;
     int tamanho;
     int capacidade;
 
@@ -50,26 +51,38 @@ typedef struct
 } ListaContas;
 
 
-
+// Funcao que exibe o menu
 void Menu();
+void AdicionarConta(ListaContas *contas, Conta *conta); // Adiciona a conta criada a lista de contas
+
+//Inicializa os ponteiros que armazenaram os arrays do Sistema
 void InicializarLista(ListaContas *contas, int capacidadeInicial);
-void AdicionarConta(ListaContas *contas, Conta *conta);
+void InicializaExtrato(Historico **historico, int capacidadeInicial);
+
+// Funcoes que exibirao informacoes ao usuario
 void ExibirContas(ListaContas *listaContas);
 void ExibirInformacoes(Conta *contaLogada);
+void ExibirExtrato(Historico *historico);
+// Funcoes de manipulacao de dados da conta do usuario
 void Deslogar(Conta *contaLogada);
 void Saque(Conta *contaLogada);
 void Deposito(Conta *contaLogada);
 
+//Funcoes que gerenciam funcoes do sistema
 Conta CriarConta(ListaContas *listaContas);
 Conta *LogarConta(ListaContas *listaContas);
 
 
 
 int main(){
+    //Exibe a mensagem de Boas Vindas e o Menu
+    BemVindo();
     Menu();
+    //Cria as variaveis do sistema
     int opcao = 1;
     int contaCriada = 0;
     int logStatus =  1;
+    // Instancia a conta que sera utilizada pelo usuario
     Conta novaConta;
     Conta *contaLogada = NULL;
 
@@ -115,6 +128,16 @@ int main(){
                     ExibirInformacoes(contaLogada); // Exibe as informacoes da conta Logada.
                     break;
 
+                case 5:
+                    if (contaLogada->historico != NULL){
+                        ExibirExtrato(contaLogada->historico);
+                    }
+                    else{
+                        printf("\nNenhuma Transacao Cadastrada !\n");
+                    }
+
+                    break;
+
                 case 6:
                     Saque(contaLogada);
                     break;
@@ -143,15 +166,16 @@ int main(){
 
 
 
-
+void BemVindo(){
+    printf("==============================\n");
+    printf("======== BEM VINDO ===========\n");
+    printf("========= ATM BANK ===========\n");
+    printf("==============================\n");
+    printf("\n");
+}
 
 void Menu()
 {
-    printf("==============================\n");
-    printf("======== BEM VINDO ===========\n");
-    printf("========= ATM BANK ============\n");
-    printf("==============================\n");
-    printf("\n");
     printf("\n========= MENU =========== \n");
     printf("\n[ 1 ] - Criar Conta ");
     printf("\n[ 2 ] - Realizar Login ");
@@ -163,18 +187,6 @@ void Menu()
     printf("\n[ 7 ] - Realizar Deposito ");
     printf("\n[ 0 ] - Sair \n");
     printf("\n========================== \n");
-}
-
-
-// Funcao responsavel por inicializar a lista de contas
-void inicializarLista(ListaContas *listaContas, int capacidadeInicial) {
-    listaContas->contas = (Conta *)malloc(capacidadeInicial * sizeof(Conta));
-    if (listaContas->contas == NULL) {
-        printf("Erro ao alocar memória!\n");
-        exit(1);
-    }
-    listaContas->tamanho = 0;
-    listaContas->capacidade = capacidadeInicial;
 }
 
 
@@ -190,9 +202,40 @@ void AdicionarConta(ListaContas *listaContas, Conta *conta){
     }
 
     listaContas->contas[listaContas->tamanho] = *conta;
-
     listaContas->tamanho++;
 }
+
+// Funcao responsavel por inicializar a lista de contas
+void inicializarLista(ListaContas *listaContas, int capacidadeInicial) {
+    listaContas->contas = (Conta *)malloc(capacidadeInicial * sizeof(Conta));
+    if (listaContas->contas == NULL) {
+        printf("Erro ao alocar memoria!\n");
+        exit(1);
+    }
+    listaContas->tamanho = 0;
+    listaContas->capacidade = capacidadeInicial;
+}
+
+
+// Função para inicializar o histórico de transações
+void InicializaExtrato(Historico **historico, int capacidadeInicial) {
+    *historico = (Historico *)malloc(sizeof(Historico));
+    if (*historico == NULL) {
+        printf("Erro ao alocar memória para o histórico!\n");
+        exit(1);
+    }
+
+    (*historico)->transacoes = (Transacao *)malloc(capacidadeInicial * sizeof(Transacao));
+    if ((*historico)->transacoes == NULL) {
+        printf("Erro ao alocar memória para as transações!\n");
+        free(*historico);
+        exit(1);
+    }
+
+    (*historico)->tamanho = 0;
+    (*historico)->capacidade = capacidadeInicial;
+}
+
 
 // Define a funcao de criar conta
 Conta CriarConta(ListaContas *listaContas){
@@ -203,9 +246,6 @@ Conta CriarConta(ListaContas *listaContas){
 
     //Instancia a PessoaFisica
     PessoaFisica novaPessoa;
-
-    //Cria o ponteiro que recebe o local onde esta armazenado o historico da conta
-    Historico *historico;
 
     //Instancia a Conta
     Conta novaConta;
@@ -232,14 +272,15 @@ Conta CriarConta(ListaContas *listaContas){
 
 
     novaConta.pessoaFisica = novaPessoa;
-    novaConta.historico = historico;
+    // Inicializa o Extrato
+    InicializaExtrato(&novaConta.historico, 3);
 
     novaConta.idConta = listaContas->tamanho + 1;
     novaConta.saldo = 0;
     novaConta.quantidadeTransacoes = 0;
 
-    printf("\nConta Criada com Sucesso ! ");
 
+    printf("\nConta Criada com Sucesso ! ");
 
     return novaConta;
 }
@@ -312,6 +353,16 @@ void ExibirInformacoes(Conta *contaLogada){
 }
 
 
+void ExibirExtrato(Historico *historico){
+    for (int i=0; i<historico->tamanho; i++){
+        printf("      EXTRATO     ");
+        printf("\nTipo de Transacao: %s ", historico->transacoes[i].tipoTransacao);
+        printf("\nData da Transacao: %s ", historico->transacoes[i].data);
+        printf("\nvalor : %.2f ", historico->transacoes[i].valor);
+        printf("\n---------------------------\n");
+    }
+}
+
 
 void Deposito(Conta *contaLogada){
     float valor;
@@ -331,6 +382,28 @@ void Deposito(Conta *contaLogada){
             contaLogada->saldo += valor;
             printf("\n Saldo Realizado com Sucesso !");
             printf("\n Saldo : %.2f ", contaLogada->saldo);
+
+        // Insere os dados da transacao ao Extrato
+        Transacao deposito;
+
+
+        // Obtém a data e hora atual corretamente
+        time_t tempoAtual = time(NULL);
+        struct tm *tm_info = localtime(&tempoAtual);
+
+        if (tm_info != NULL) {
+            sprintf(deposito.data, "%02d/%02d/%04d %02d:%02d:%02d",
+                    tm_info->tm_mday, tm_info->tm_mon + 1, tm_info->tm_year + 1900,
+                    tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec);
+        } else {
+            strcpy(deposito.data, "ERRO");
+        }
+
+        deposito.valor = valor;
+        strcpy(deposito.tipoTransacao, "Deposito");
+        contaLogada->historico->transacoes[contaLogada->historico->tamanho] = deposito;
+        contaLogada->historico->tamanho++;
+
         }
         else{
             printf("\n Operacao Cancelada !");
@@ -358,6 +431,27 @@ void Saque(Conta *contaLogada){
             contaLogada->saldo -= valor;
             printf("\n Saldo Realizado com Sucesso !");
             printf("\n Saldo : %.2f ", contaLogada->saldo);
+
+        // Insere os dados da transacao ao Extrato
+        Transacao saque;
+
+        // Obtém a data e hora atual corretamente
+        time_t tempoAtual = time(NULL);
+        struct tm *tm_info = localtime(&tempoAtual);
+
+        if (tm_info != NULL) {
+            sprintf(saque.data, "%02d/%02d/%04d %02d:%02d:%02d",
+                    tm_info->tm_mday, tm_info->tm_mon + 1, tm_info->tm_year + 1900,
+                    tm_info->tm_hour, tm_info->tm_min, tm_info->tm_sec);
+        } else {
+            strcpy(saque.data, "ERRO");
+        }
+
+        saque.valor = valor;
+        strcpy(saque.tipoTransacao, "Saque");
+        contaLogada->historico->transacoes[contaLogada->historico->tamanho] = saque;
+        contaLogada->historico->tamanho++;
+
         }
         else{
             printf("\n Operacao Cancelada !");
@@ -368,3 +462,5 @@ void Saque(Conta *contaLogada){
     }
 
 }
+
+
