@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <time.h>
 
 //Define a estrutura para a definicao de um cadastro de Pessoa Física
@@ -221,13 +222,13 @@ void inicializarLista(ListaContas *listaContas, int capacidadeInicial) {
 void InicializaExtrato(Historico **historico, int capacidadeInicial) {
     *historico = (Historico *)malloc(sizeof(Historico));
     if (*historico == NULL) {
-        printf("Erro ao alocar memória para o histórico!\n");
+        printf("Erro ao alocar memoria para o historico!\n");
         exit(1);
     }
 
     (*historico)->transacoes = (Transacao *)malloc(capacidadeInicial * sizeof(Transacao));
     if ((*historico)->transacoes == NULL) {
-        printf("Erro ao alocar memória para as transações!\n");
+        printf("Erro ao alocar memoria para as transaçoes!\n");
         free(*historico);
         exit(1);
     }
@@ -240,7 +241,7 @@ void InicializaExtrato(Historico **historico, int capacidadeInicial) {
 // Define a funcao de criar conta
 Conta CriarConta(ListaContas *listaContas){
     char nome[50];
-    char cpf[11];
+    char cpf[12];
     char dataNascimento[11];
 
 
@@ -256,10 +257,21 @@ Conta CriarConta(ListaContas *listaContas){
     fgets(novaPessoa.nome, sizeof(novaPessoa.nome), stdin);
     novaPessoa.nome[strcspn(novaPessoa.nome, "\n")] = 0;
 
-    while (getchar() != '\n');
-    printf("\n\tDigite o seu CPF (apenas numeros): ");
-    fgets(novaPessoa.cpf, sizeof(novaPessoa.cpf), stdin);
-    novaPessoa.cpf[strcspn(novaPessoa.cpf, "\n")] = 0;
+    bool valida_cpf = false;
+    do {
+        printf("\n\tDigite o seu CPF (apenas numeros): ");
+        fgets(cpf, sizeof(cpf), stdin);
+        cpf[strcspn(cpf, "\n")] = 0;  // Remove \n
+
+        valida_cpf = verifica_cpf(cpf);
+        if (!valida_cpf) {
+            printf("\n\tCPF invalido! Tente novamente.");
+        }
+    } while (!valida_cpf);
+
+    // Copia o CPF validado para a estrutura
+    strcpy(novaPessoa.cpf, cpf);
+
 
     while (getchar() != '\n');
     printf("\n\tDigite a data de nascimento (DD/MM/AAAA): ");
@@ -290,7 +302,7 @@ Conta *LogarConta(ListaContas *listaContas) {
     char senha[20];
     char cpf[11];
 
-    printf("Digite o CPF (Somente Números): ");
+    printf("Digite o CPF (Somente Numeros): ");
     while (getchar() != '\n');
     scanf("%s", cpf);
 
@@ -378,7 +390,7 @@ void Deposito(Conta *contaLogada){
         printf("\n Confirmar Deposito  (s/n)?");
         scanf("%c", &confirmar);
 
-        if(confirmar == 's'){
+        if(confirmar == 's' || confirmar == 'S'){
             contaLogada->saldo += valor;
             printf("\n Saldo Realizado com Sucesso !");
             printf("\n Saldo : %.2f ", contaLogada->saldo);
@@ -427,7 +439,7 @@ void Saque(Conta *contaLogada){
         printf("\n Confirmar Saque  (s/n)?");
         scanf("%c", &confirmar);
 
-        if(confirmar == 's'){
+        if(confirmar == 's' || confirmar == 'S'){
             contaLogada->saldo -= valor;
             printf("\n Saldo Realizado com Sucesso !");
             printf("\n Saldo : %.2f ", contaLogada->saldo);
